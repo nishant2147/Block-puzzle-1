@@ -1,38 +1,42 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class SpawnRandomBlocks : MonoBehaviour
 {
-    float k;
-    public GameObject[] blockPrefabs;
-    int numberOfBlocksToSpawns = 4;
+    float startPos = .6f;
+    float offset = 2f;
+
+    [SerializeField]
+    GameObject[] Pieces;
+
+    [SerializeField]
+    int SpawnStartPos;
+
+    public void NewBlockGenerate(GameObject block)
+    {
+        if (block == null)
+        {
+            GenerateNewBlock();
+        }
+    }
+
+    void GenerateNewBlock()
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            float k = startPos + (i * offset);
+            var Piece = Instantiate(Pieces[Random.Range(SpawnStartPos, Pieces.Length)], new Vector2(k, 0), Quaternion.identity);
+            Piece.transform.SetParent(transform, false);
+        }
+    }
 
     void Start()
     {
-        SpawnBlocks();
+        GenerateNewBlock();
     }
 
-    void SpawnBlocks()
+    private void Update()
     {
-        for (int i = 1; i < numberOfBlocksToSpawns; i++)
-        {
-            if (i == 1)
-            {
-                k = 0.6f;
-            }
-            else if (i == 2)
-            {
-                k = 2.7f;
-            }
-            else if (i == 3)
-            {
-                k = 5f;
-            }
-
-            var block = Instantiate(blockPrefabs[Random.Range(0, blockPrefabs.Length)], new Vector2(k, 0), Quaternion.identity);
-            block.transform.SetParent(transform, false);
-        }
+        //var mainPieace = GameObject.FindGameObjectsWithTag("Blocks");
     }
 
 }

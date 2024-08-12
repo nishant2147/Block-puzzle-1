@@ -21,7 +21,6 @@ public class BlockPieces : MonoBehaviour
     {
         
     }
-
     internal void moveToOriginalPosition()
     {
         transform.position = startPos;

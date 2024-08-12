@@ -1,55 +1,58 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Drawing;
 using UnityEngine;
-using static UnityEditor.PlayerSettings;
 
 
 public class GridGenerate : MonoBehaviour
 {
-    public static GridGenerate instance;
-
     public int size;
-    public GameObject tilePrefab;
+    [SerializeField] GameObject tilePrefab;
+    [SerializeField] SpawnRandomBlocks spawnRandomBlocks;
 
     GameObject[,] baseBlock;
     GameObject[,] fillBlock;
+
+    public Sprite sprite;
     // Start is called before the first frame update
     void Start()
     {
         baseBlock = new GameObject[size, size];
         fillBlock = new GameObject[size, size];
-        instance = this;
+
         grid();
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
     void grid()
     {
+        baseBlock = new GameObject[size, size];
+
         for (int row = 0; row < size; row++)
         {
             for (int col = 0; col < size; col++)
             {
                 GameObject tile = Instantiate(tilePrefab, transform);
-                tile.transform.position = new Vector3(col, row, 0);
+                tile.transform.position = new Vector3(row, col, 0);
                 baseBlock[row, col] = tile;
             }
         }
     }
 
-    internal bool inRange(Vector2 pos)
+    public bool inRange(Vector2 pos)
     {
         return pos.x > -0.5 && pos.y > -0.5 && pos.x < (size - 0.5) && pos.y < (size - 0.5);
+    }
+    public Vector2Int convertToVector2Int(Vector3 pos)
+    {
+        return new Vector2Int((int)(pos.x + 0.1f), (int)(pos.y + 0.5f));
     }
 
     internal bool isEmpty(BlockPieces block)
     {
-        for(int i = 0; i < block.transform.childCount; i++)
+        for (int i = 0; i < block.transform.childCount; i++)
         {
             var Pieces = block.transform.GetChild(i);
             Vector2Int pos = vectorToInt(Pieces.transform.position);
@@ -70,7 +73,32 @@ public class GridGenerate : MonoBehaviour
 
     internal void PlacesBlock(BlockPieces block)
     {
-        block.blockPlaced = true;
+
+        if (isEmptyBase(block))
+        {
+            //var Totalchild = block.transform.childCount;
+
+            for (int i = 0; i < block.transform.childCount; i++)
+            {
+                var piece = block.transform.GetChild(i).gameObject;
+                Vector2Int pos = vectorToInt(piece.transform.position);
+
+                var _piece = baseBlock[pos.x, pos.y];
+
+                piece.transform.position = new Vector2(pos.x, pos.y);
+                block.transform.localScale = Vector3.one;
+                fillBlock[pos.x, pos.y] = piece;
+            }
+
+            block.GetComponent<BoxCollider2D>().enabled = false;
+            spawnRandomBlocks.NewBlockGenerate(block.gameObject);
+        }
+        else
+        {
+            block.moveToOriginalPosition();
+        }
+
+        /*block.blockPlaced = true;
 
         for (int i = 0; i < block.transform.childCount; i++)
         {
@@ -78,6 +106,140 @@ public class GridGenerate : MonoBehaviour
             Vector2Int pos = vectorToInt(Pieces.transform.position);
             fillBlock[pos.x, pos.y] = Pieces;
             Pieces.transform.position = new Vector3(pos.x, pos.y);
+        }*/
+
+        //block.GetComponent<BoxCollider2D>().enabled = false;
+
+    }
+
+    public void Highlight(BlockPieces pos)
+    {
+        clearHighlight();
+
+        if (!isEmptyBase(pos)) return;
+
+        for (int i = 0; i < pos.transform.childCount; i++)
+        {
+            var piece = pos.transform.GetChild(i);
+            //Vector2Int piecePos = vectorToInt(piece.transform.position);
+            Vector2Int piecePos = convertToVector2Int(piece.transform.position);
+
+            var block = baseBlock[piecePos.x, piecePos.y];
+
+            block.GetComponent<SpriteRenderer>().sprite = piece.GetComponent<SpriteRenderer>().sprite;
+            block.transform.localScale = Vector3.one;
+
+        }
+        /* var blocks = baseBlock[pos.x, pos.y].GetComponent<SpriteRenderer>();
+         blocks.sprite = sprite;
+         blocks.transform.localScale = Vector3.one;*/
+    }
+
+    public bool isEmptyBase(BlockPieces pos)
+    {
+        for (int i = 0; i < pos.transform.childCount; i++)
+        {
+            var piece = pos.transform.GetChild(i).gameObject;
+            Vector2Int piecePos = convertToVector2Int(piece.transform.position);
+
+            if (!inRange(piece.transform.position) || fillBlock[piecePos.x, piecePos.y] != null)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    internal void clearHighlight()
+    {
+        for (int i = 0; i < size; i++)
+        {
+            for (int j = 0; j < size; j++)
+            {
+                var block = baseBlock[i, j].GetComponent<SpriteRenderer>();
+                block.sprite = sprite;
+                block.transform.localScale = Vector3.one * 1.5f;
+            }
         }
     }
+
+
+
+    /*[SerializeField] Transform baseParent, pieceParent;
+    [SerializeField] GameObject[] pieces;
+    [SerializeField] GameObject emptyBase;
+
+    [SerializeField] Transform startPos;
+    [SerializeField] float offset;
+
+    GameObject[,] baseBlock;
+
+    int size = 10;
+
+    private void Start()
+    {
+        generateBaseBlock();
+        generatePieces();
+    }
+
+    private void generatePieces()
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            var pos = startPos.position;
+            pos.x += (i * offset);
+            GameObject tile = Instantiate(pieces[0], pieceParent);
+            tile.transform.position = pos;
+        }
+    }
+
+    private void generateBaseBlock()
+    {
+        baseBlock = new GameObject[size, size];
+        for (int i = 0; i < size; i++)
+        {
+            for (int j = 0; j < size; j++)
+            {
+                GameObject tile = Instantiate(emptyBase, baseParent);
+                tile.transform.position = new Vector3(i, j, 0);
+                baseBlock[i, j] = tile;
+            }
+        }
+    }
+
+    public Vector2Int convertToVector2Int(Vector3 pos)
+    {
+        return new Vector2Int((int)(pos.x + 0.5f), (int)(pos.y + 0.5f));
+    }
+
+    public bool inRange(Vector2 pos)
+    {
+        return pos.x > -0.5 && pos.y > -0.5 && pos.x < (size - 0.5) && pos.y < (size - 0.5);
+    }
+
+    public void highLight(GameObject piece)
+    {
+        clearHighlight();
+        var piecePos = convertToVector2Int(piece.transform.position);
+        var _base = baseBlock[piecePos.x, piecePos.y];
+        var baseSprite = _base.GetComponent<SpriteRenderer>();
+        var pieceSprite = piece.transform.GetChild(0).GetComponent<SpriteRenderer>();
+
+        baseSprite.sprite = pieceSprite.sprite;
+        _base.transform.localScale = Vector3.one;
+
+    }
+
+    public void clearHighlight()
+    {
+        for (int i = 0; i < size; i++)
+        {
+            for (int j = 0; j < size; j++)
+            {
+                baseBlock[i, j].GetComponent<SpriteRenderer>().sprite = emptyBase.GetComponent<SpriteRenderer>().sprite;
+                baseBlock[i, j].transform.localScale = Vector3.one * 1.5f;
+            }
+        }
+    }*/
+
 }
