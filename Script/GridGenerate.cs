@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 
@@ -17,7 +16,6 @@ public class GridGenerate : MonoBehaviour
     {
         baseBlock = new GameObject[size, size];
         fillBlock = new GameObject[size, size];
-
         grid();
     }
 
@@ -92,25 +90,58 @@ public class GridGenerate : MonoBehaviour
 
             block.GetComponent<BoxCollider2D>().enabled = false;
             spawnRandomBlocks.NewBlockGenerate(block.gameObject);
+            Destroyblock();
         }
         else
         {
             block.moveToOriginalPosition();
         }
-
-        /*block.blockPlaced = true;
-
-        for (int i = 0; i < block.transform.childCount; i++)
-        {
-            var Pieces = block.transform.GetChild(i).gameObject;
-            Vector2Int pos = vectorToInt(Pieces.transform.position);
-            fillBlock[pos.x, pos.y] = Pieces;
-            Pieces.transform.position = new Vector3(pos.x, pos.y);
-        }*/
-
-        //block.GetComponent<BoxCollider2D>().enabled = false;
-
     }
+    void Destroyblock()
+    {
+        for (int i = 0; i < size; i++)
+        {
+            bool isDestoryVertical = true;
+            bool isDestoryHorizontal = true;
+
+
+            for (int j = 0; j < size; j++)
+            {
+                if (fillBlock[i, j] == null)
+                {
+                    isDestoryVertical = false;
+                }
+
+                if (fillBlock[j, i] == null)
+                {
+                    isDestoryHorizontal = false;
+                }
+            }
+
+            //print(i + "=====>" + isDestoryVertical);
+
+            if (isDestoryVertical)
+            {
+                for (int j = 0; j < size; j++)
+                {
+                    fillBlock[i, j].gameObject.transform.parent = null;
+                    Destroy(fillBlock[i, j].gameObject);
+                    fillBlock[i, j] = null;
+                }
+            }
+
+            if (isDestoryHorizontal)
+            {
+                for (int j = 0; j < size; j++)
+                {
+                    fillBlock[j, i].gameObject.transform.parent = null;
+                    Destroy(fillBlock[j, i].gameObject);
+                    fillBlock[j, i] = null;
+                }
+            }
+        }
+    }
+
 
     public void Highlight(BlockPieces pos)
     {

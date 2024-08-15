@@ -1,9 +1,10 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class SpawnRandomBlocks : MonoBehaviour
 {
-    float startPos = .6f;
-    float offset = 2f;
+    float startPos = .7f;
+    float offset = 2.5f;
 
     [SerializeField]
     GameObject[] Pieces;
@@ -11,21 +12,27 @@ public class SpawnRandomBlocks : MonoBehaviour
     [SerializeField]
     int SpawnStartPos;
 
+    //List<GameObject> NewblockGenerate = new List<GameObject>(3);
+    int cnt = 0;
+
     public void NewBlockGenerate(GameObject block)
     {
-        if (block == null)
+        //NewblockGenerate.Remove(block);
+        cnt--;
+        if (cnt == 0)
         {
             GenerateNewBlock();
         }
     }
-
     void GenerateNewBlock()
     {
-        for (int i = 0; i < 3; i++)
+        for (int i = cnt; i < 3; i++)
         {
             float k = startPos + (i * offset);
             var Piece = Instantiate(Pieces[Random.Range(SpawnStartPos, Pieces.Length)], new Vector2(k, 0), Quaternion.identity);
             Piece.transform.SetParent(transform, false);
+            //NewblockGenerate.Add(Piece);
+            cnt++;
         }
     }
 
@@ -38,5 +45,4 @@ public class SpawnRandomBlocks : MonoBehaviour
     {
         //var mainPieace = GameObject.FindGameObjectsWithTag("Blocks");
     }
-
 }

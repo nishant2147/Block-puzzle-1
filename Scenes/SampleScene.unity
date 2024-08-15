@@ -638,6 +638,8 @@ MonoBehaviour:
   - {fileID: 6602466051113000589, guid: 5878f33b31ab2004aa39dc7e2e20c8d0, type: 3}
   - {fileID: 492687976422339425, guid: adeeaa26e538ba14d96ec165dbd97569, type: 3}
   - {fileID: 7782916949275759562, guid: 5cd6f4be6e99e8142b5d22155336fc19, type: 3}
+  - {fileID: 5650923188453054992, guid: b2ae2a3e8cb18484fb6bd1310603c18e, type: 3}
+  - {fileID: 2120129079295185992, guid: 92e91ff34c90c3b4d82b354c18a25ff9, type: 3}
   SpawnStartPos: 0
 --- !u!1 &1495256708
 GameObject:
