@@ -47,6 +47,7 @@ public class DragandDropBlock : MonoBehaviour
                     {
                         instance.PlacesBlock(PressBlock);
                         PressBlock = null;
+                        instance.clearHighlight();
                         return;
                     }
                 }

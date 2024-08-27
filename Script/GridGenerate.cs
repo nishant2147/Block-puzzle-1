@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using UnityEngine;
 
 
@@ -89,14 +91,57 @@ public class GridGenerate : MonoBehaviour
             }
 
             block.GetComponent<BoxCollider2D>().enabled = false;
-            spawnRandomBlocks.NewBlockGenerate(block.gameObject);
+            spawnRandomBlocks.NewBlockGenerate(block);
             Destroyblock();
+            CheckGameOver();
         }
         else
         {
             block.moveToOriginalPosition();
         }
     }
+
+    void CheckGameOver()
+    {
+        for (int r = 0; r < size; r++)
+        {
+            for (int c = 0; c < size; c++)
+            {
+
+                if (fillBlock[r, c] != null) continue;
+
+                var basePiece = baseBlock[r, c];
+                for (int i = 0; i < spawnRandomBlocks.NewblockGenerate.Count; i++)
+                {
+                    var dragPiece = spawnRandomBlocks.NewblockGenerate[i];
+                    var tempPos = dragPiece.transform.position;
+                    var tempScale = dragPiece.transform.localScale;
+
+                    dragPiece.transform.localScale = Vector3.one;
+                    dragPiece.transform.position = basePiece.transform.position;
+
+                    if (isEmptyBase(dragPiece))
+                    {
+                        dragPiece.transform.position = tempPos;
+                        dragPiece.transform.localScale = tempScale;
+                        return;
+                    }
+
+                    for (int j = 0; j < dragPiece.transform.childCount; j++)
+                    {
+                        var child = dragPiece.transform.GetChild(j);
+                        print($"{j} --> {child.transform.position}");
+                    }
+
+                    dragPiece.transform.position = tempPos;
+                    dragPiece.transform.localScale = tempScale;
+                }
+            }
+        }
+
+        print("Game Over!!!");
+    }
+
     void Destroyblock()
     {
         for (int i = 0; i < size; i++)
@@ -125,7 +170,8 @@ public class GridGenerate : MonoBehaviour
                 for (int j = 0; j < size; j++)
                 {
                     fillBlock[i, j].gameObject.transform.parent = null;
-                    Destroy(fillBlock[i, j].gameObject);
+                    StartCoroutine(particle(fillBlock[i, j]));
+                    //Destroy(fillBlock[i, j].gameObject);
                     fillBlock[i, j] = null;
                 }
             }
@@ -135,13 +181,24 @@ public class GridGenerate : MonoBehaviour
                 for (int j = 0; j < size; j++)
                 {
                     fillBlock[j, i].gameObject.transform.parent = null;
-                    Destroy(fillBlock[j, i].gameObject);
+                    StartCoroutine(particle(fillBlock[j, i]));
+                    //Destroy(fillBlock[j, i].gameObject);
                     fillBlock[j, i] = null;
                 }
             }
         }
     }
+    IEnumerator particle(GameObject block)
+    {
+        ParticleSystem particale = block.GetComponent<ParticleSystem>();
+        particale.Play();
+        block.GetComponent<SpriteRenderer>().enabled = false;
+        yield return new WaitForSeconds(1);
 
+        particale.Stop();
+
+        Destroy(block.gameObject);
+    }
 
     public void Highlight(BlockPieces pos)
     {

@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -23,12 +24,15 @@ public class BlockPieces : MonoBehaviour
     }
     internal void moveToOriginalPosition()
     {
-        transform.position = startPos;
-        transform.localScale = originalScale;
+        transform.DOMove(startPos, 0.5f);
+        transform.DOScale(originalScale, 0.5f);
+        //transform.position = startPos;
+        //transform.localScale = originalScale;
     }
     void OnMouseDown()
     {
-        transform.localScale = largedScale;
+        transform.DOScale(largedScale, 0.5f);
+        //transform.localScale = largedScale;
     }
     void OnMouseUp()
     {

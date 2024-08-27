@@ -12,14 +12,14 @@ public class SpawnRandomBlocks : MonoBehaviour
     [SerializeField]
     int SpawnStartPos;
 
-    //List<GameObject> NewblockGenerate = new List<GameObject>(3);
+    public List<BlockPieces> NewblockGenerate = new List<BlockPieces>(3);
     int cnt = 0;
 
-    public void NewBlockGenerate(GameObject block)
+    public void NewBlockGenerate(BlockPieces block)
     {
-        //NewblockGenerate.Remove(block);
-        cnt--;
-        if (cnt == 0)
+        NewblockGenerate.Remove(block);
+        //cnt--;
+        if (NewblockGenerate.Count == 0)
         {
             GenerateNewBlock();
         }
@@ -31,8 +31,8 @@ public class SpawnRandomBlocks : MonoBehaviour
             float k = startPos + (i * offset);
             var Piece = Instantiate(Pieces[Random.Range(SpawnStartPos, Pieces.Length)], new Vector2(k, 0), Quaternion.identity);
             Piece.transform.SetParent(transform, false);
-            //NewblockGenerate.Add(Piece);
-            cnt++;
+            NewblockGenerate.Add(Piece.GetComponent<BlockPieces>());
+            //cnt++;
         }
     }
 
